@@ -1,26 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  smartovate-api
-  Sample SAM Template for smartovate-api
+Description: 'smartovate-api Sample SAM Template for smartovate-api
 
+  '
 Globals:
   Function:
     Timeout: 3
-
 Resources:
   HelloWorldFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
+      CodeUri: HelloWorldFunction
       Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
-        - x86_64
+      - x86_64
       Events:
         HelloWorld:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /hello
             Method: get
-
+    Metadata:
+      SamResourceId: HelloWorldFunction
