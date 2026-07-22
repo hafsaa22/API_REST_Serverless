@@ -18,4 +18,13 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["CreateServiceFunction"]
 
+[function_build_definitions.68bd7a5a-f8d3-4b17-9a9f-3b1fefe1d8fc]
+codeuri = "C:\\Users\\Admin\\API_REST_Serverless\\get_services"
+runtime = "python3.12"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["GetServicesFunction"]
+
 [layer_build_definitions]

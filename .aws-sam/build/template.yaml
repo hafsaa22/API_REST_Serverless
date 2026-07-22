@@ -70,3 +70,27 @@ Resources:
             Method: post
     Metadata:
       SamResourceId: CreateServiceFunction
+  GetServicesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetServicesFunction
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: CatalogTable
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: CatalogTable
+      Events:
+        GetServicesEvent:
+          Type: Api
+          Properties:
+            Path: /services
+            Method: get
+    Metadata:
+      SamResourceId: GetServicesFunction
