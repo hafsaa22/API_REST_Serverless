@@ -89,3 +89,35 @@ Resources:
           Properties:
             Path: /services
             Method: get
+  
+
+  ManageServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: manage_service/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CatalogTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CatalogTable
+      Events:
+        GetServiceEvent:
+          Type: Api
+          Properties:
+            Path: /services/{id}
+            Method: get
+        UpdateServiceEvent:
+          Type: Api
+          Properties:
+            Path: /services/{id}
+            Method: put
+        DeleteServiceEvent:
+          Type: Api
+          Properties:
+            Path: /services/{id}
+            Method: delete
