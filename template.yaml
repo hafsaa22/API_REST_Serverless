@@ -45,3 +45,24 @@ Resources:
             Path: /hello
             Method: get
 
+CreateServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_service/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CatalogTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CatalogTable
+      Events:
+        CreateServiceEvent:
+          Type: Api
+          Properties:
+            Path: /services
+            Method: post
+
