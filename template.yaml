@@ -94,7 +94,7 @@ Resources:
   ManageServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: manage_service/
+      CodeUri: manage_services/
       Handler: app.lambda_handler
       Runtime: python3.12
       Architectures:
