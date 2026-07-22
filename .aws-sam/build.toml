@@ -9,4 +9,13 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["HelloWorldFunction"]
 
+[function_build_definitions.f8716c0b-6bb6-48ff-9d78-7895a08b66e9]
+codeuri = "C:\\Users\\Admin\\API_REST_Serverless\\create_service"
+runtime = "python3.12"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["CreateServiceFunction"]
+
 [layer_build_definitions]

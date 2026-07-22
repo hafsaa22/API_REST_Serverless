@@ -45,7 +45,7 @@ Resources:
             Path: /hello
             Method: get
 
-CreateServiceFunction:
+  CreateServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: create_service/
