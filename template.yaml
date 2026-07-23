@@ -75,6 +75,11 @@ Resources:
       CodeUri: recuperer_services/
       Handler: app.lambda_handler
       Runtime: python3.12
+      # --- PROVISIONED CONCURRENCY ---
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
+      # --------------------------------------------
       Architectures:
         - x86_64
       Environment:
