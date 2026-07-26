@@ -56,6 +56,7 @@ def lambda_handler(event, context):
             "body": json.dumps(result, cls=DecimalEncoder)
         }
 
+
     except Exception as e:
         print(f"Erreur interne: {e}")
         return {

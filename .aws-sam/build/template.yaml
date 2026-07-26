@@ -76,6 +76,9 @@ Resources:
       CodeUri: GetServicesFunction
       Handler: app.lambda_handler
       Runtime: python3.12
+      AutoPublishAlias: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
       Architectures:
       - x86_64
       Environment:
