@@ -1,13 +1,28 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: |
-  smartovate-api Sample SAM Template for smartovate-api
+  smartovate-api
+  Sample SAM Template for smartovate-api
 
 Globals:
   Function:
     Timeout: 3
 
-Conditions:
+Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        ApiKeyRequired: true
+        UsagePlan:
+          CreateUsagePlan: PER_API
+
+  Validator:
+    Type: AWS::ApiGateway::RequestValidator
+    Properties:
+      RestApiId: !Ref MyApi
+      ValidateRequestBody: true
 
   CatalogTable:
     Type: AWS::DynamoDB::Table
@@ -25,26 +40,28 @@ Conditions:
         - AttributeName: SK
           KeyType: RANGE
 
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
-      Runtime: python3.12
-      Architectures:
-        - x86_64
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref CatalogTable
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref CatalogTable
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
+  # ------- TEST -------- 
+  #  HelloWorldFunction:
+  #    Type: AWS::Serverless::Function
+  #    Properties:
+  #      CodeUri: hello_world/
+  #      Handler: app.lambda_handler
+  #      Runtime: python3.12
+  #      Architectures:
+  #        - x86_64
+  #      Environment:
+  #        Variables:
+  #          TABLE_NAME: !Ref CatalogTable
+  #      Policies:
+  #        - DynamoDBCrudPolicy:
+  #            TableName: !Ref CatalogTable
+  #      Events:
+  #        HelloWorld:
+  #          Type: Api
+  #          Properties:
+  #            Path: /hello
+  #            Method: get
+  # ----------------------
 
   CreateServiceFunction:
     Type: AWS::Serverless::Function
@@ -71,6 +88,7 @@ Conditions:
           Properties:
             Path: /services
             Method: post
+            RestApiId: !Ref MyApi
 
   GetServicesFunction:
     Type: AWS::Serverless::Function
@@ -102,6 +120,7 @@ Conditions:
           Properties:
             Path: /services
             Method: get
+            RestApiId: !Ref MyApi
 
   ManageServiceFunction:
     Type: AWS::Serverless::Function
@@ -130,13 +149,16 @@ Conditions:
           Properties:
             Path: /services/{id}
             Method: get
+            RestApiId: !Ref MyApi
         UpdateServiceEvent:
           Type: Api
           Properties:
             Path: /services/{id}
             Method: put
+            RestApiId: !Ref MyApi
         DeleteServiceEvent:
           Type: Api
           Properties:
             Path: /services/{id}
             Method: delete
+            RestApiId: !Ref MyApi

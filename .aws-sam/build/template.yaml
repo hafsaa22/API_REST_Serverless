@@ -7,6 +7,14 @@ Globals:
   Function:
     Timeout: 3
 Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Auth:
+        ApiKeyRequired: true
+        UsagePlan:
+          CreateUsagePlan: PER_API
   CatalogTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -71,9 +79,10 @@ Resources:
         CreateServiceEvent:
           Type: Api
           Properties:
-            apiKeyRequired: true
             Path: /services
             Method: post
+            RestApiId:
+              Ref: MyApi
     Metadata:
       SamResourceId: CreateServiceFunction
   GetServicesFunction:
@@ -106,6 +115,8 @@ Resources:
           Properties:
             Path: /services
             Method: get
+            RestApiId:
+              Ref: MyApi
     Metadata:
       SamResourceId: GetServicesFunction
   ManageServiceFunction:
@@ -137,15 +148,21 @@ Resources:
           Properties:
             Path: /services/{id}
             Method: get
+            RestApiId:
+              Ref: MyApi
         UpdateServiceEvent:
           Type: Api
           Properties:
             Path: /services/{id}
             Method: put
+            RestApiId:
+              Ref: MyApi
         DeleteServiceEvent:
           Type: Api
           Properties:
             Path: /services/{id}
             Method: delete
+            RestApiId:
+              Ref: MyApi
     Metadata:
       SamResourceId: ManageServiceFunction
