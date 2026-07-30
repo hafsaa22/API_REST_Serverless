@@ -17,12 +17,27 @@ Resources:
         ApiKeyRequired: true
         UsagePlan:
           CreateUsagePlan: PER_API
-
-  Validator:
-    Type: AWS::ApiGateway::RequestValidator
-    Properties:
-      RestApiId: !Ref MyApi
-      ValidateRequestBody: true
+    # ------ Def JSON Model ------
+    Models:
+      ServiceModel:
+        type: object
+        required:
+          - nom
+          - description
+          - categorie
+          - prix
+        properties:
+          nom:
+            type: string
+          description:
+            type: string
+          categorie:
+            type: string
+          prix:
+            type: string
+    RequestValidator:
+      ValidateBody: true
+      ValidateParameters: false
 
   CatalogTable:
     Type: AWS::DynamoDB::Table
