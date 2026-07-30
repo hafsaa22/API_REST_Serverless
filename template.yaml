@@ -104,8 +104,12 @@ Resources:
             Path: /services
             Method: post
             RestApiId: !Ref MyApi
+            RequestModel: 
+              Model: ServiceModel
+              Required: true
 
-  GetServicesFunction:
+
+    GetServicesFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: recuperer_services/
@@ -171,6 +175,9 @@ Resources:
             Path: /services/{id}
             Method: put
             RestApiId: !Ref MyApi
+            RequestModel: 
+              Model: ServiceModel
+              Required: true
         DeleteServiceEvent:
           Type: Api
           Properties:
