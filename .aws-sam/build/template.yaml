@@ -59,13 +59,19 @@ Resources:
           TABLE_NAME:
             Ref: CatalogTable
       Policies:
-      - DynamoDBCrudPolicy:
-          TableName:
-            Ref: CatalogTable
+      - Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:PutItem
+          Resource:
+            Fn::GetAtt:
+            - CatalogTable
+            - Arn
       Events:
         CreateServiceEvent:
           Type: Api
           Properties:
+            apiKeyRequired: true
             Path: /services
             Method: post
     Metadata:
@@ -86,9 +92,14 @@ Resources:
           TABLE_NAME:
             Ref: CatalogTable
       Policies:
-      - DynamoDBReadPolicy:
-          TableName:
-            Ref: CatalogTable
+      - Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:Scan
+          Resource:
+            Fn::GetAtt:
+            - CatalogTable
+            - Arn
       Events:
         GetServicesEvent:
           Type: Api
@@ -110,9 +121,16 @@ Resources:
           TABLE_NAME:
             Ref: CatalogTable
       Policies:
-      - DynamoDBCrudPolicy:
-          TableName:
-            Ref: CatalogTable
+      - Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+          Resource:
+            Fn::GetAtt:
+            - CatalogTable
+            - Arn
       Events:
         GetServiceEvent:
           Type: Api

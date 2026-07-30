@@ -1,23 +1,23 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  smartovate-api
-  Sample SAM Template for smartovate-api
+Description: |
+  smartovate-api Sample SAM Template for smartovate-api
 
 Globals:
   Function:
     Timeout: 3
 
-Resources:
+Conditions:
+
   CatalogTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: CatalogTable
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: PK 
+        - AttributeName: PK
           AttributeType: S
-        - AttributeName: SK 
+        - AttributeName: SK
           AttributeType: S
       KeySchema:
         - AttributeName: PK
@@ -26,7 +26,7 @@ Resources:
           KeyType: RANGE
 
   HelloWorldFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: hello_world/
       Handler: app.lambda_handler
@@ -41,11 +41,10 @@ Resources:
             TableName: !Ref CatalogTable
       Events:
         HelloWorld:
-          Type: Api 
+          Type: Api
           Properties:
             Path: /hello
             Method: get
-
 
   CreateServiceFunction:
     Type: AWS::Serverless::Function
@@ -65,14 +64,13 @@ Resources:
               Action:
                 - dynamodb:PutItem
               Resource: !GetAtt CatalogTable.Arn
-              
+
       Events:
         CreateServiceEvent:
           Type: Api
           Properties:
             Path: /services
             Method: post
-
 
   GetServicesFunction:
     Type: AWS::Serverless::Function
@@ -104,7 +102,6 @@ Resources:
           Properties:
             Path: /services
             Method: get
-  
 
   ManageServiceFunction:
     Type: AWS::Serverless::Function
