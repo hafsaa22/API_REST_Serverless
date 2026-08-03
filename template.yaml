@@ -184,3 +184,27 @@ Resources:
             Path: /services/{id}
             Method: delete
             RestApiId: !Ref MyApi
+
+  # --- DOC SWAGGER (S3 Bucket) ---
+  SwaggerDocsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  SwaggerDocsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SwaggerDocsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${SwaggerDocsBucket.Arn}/*"          
