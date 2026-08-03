@@ -1,0 +1,52 @@
+openapi: "3.0.1"
+info:
+  title: "smartovate-api"
+  version: "1.0"
+servers:
+- url: "https://k0gyircdq1.execute-api.eu-north-1.amazonaws.com/{basePath}"
+  variables:
+    basePath:
+      default: "prod"
+paths:
+  /services:
+    get:
+      security:
+      - api_key: []
+    post:
+      security:
+      - api_key: []
+  /services/{id}:
+    get:
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      security:
+      - api_key: []
+    put:
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      security:
+      - api_key: []
+    delete:
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      security:
+      - api_key: []
+components:
+  securitySchemes:
+    api_key:
+      type: "apiKey"
+      name: "x-api-key"
+      in: "header"
+x-amazon-apigateway-security-policy: "TLS_1_0"
