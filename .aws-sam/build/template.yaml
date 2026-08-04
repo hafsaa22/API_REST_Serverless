@@ -13,30 +13,33 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
+      Cors:
+        AllowOrigin: '''*'''
+        AllowMethods: '''*'''
+        AllowHeaders: '''*'''
       Auth:
-        ApiKeyRequired: true
         UsagePlan:
           CreateUsagePlan: PER_API
-    Models:
-      ServiceModel:
-        type: object
-        required:
-        - nom
-        - description
-        - categorie
-        - prix
-        properties:
-          nom:
-            type: string
-          description:
-            type: string
-          categorie:
-            type: string
-          prix:
-            type: string
-    RequestValidator:
-      ValidateBody: true
-      ValidateParameters: false
+      Models:
+        ServiceModel:
+          type: object
+          required:
+          - nom
+          - description
+          - categorie
+          - prix
+          properties:
+            nom:
+              type: string
+            description:
+              type: string
+            categorie:
+              type: string
+            prix:
+              type: string
+          RequestValidator:
+            ValidateBody: true
+            ValidateParameters: false
   CatalogTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -56,6 +59,42 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: CreateServiceFunction
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: CatalogTable
+      Policies:
+      - Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:PutItem
+          Resource:
+            Fn::GetAtt:
+            - CatalogTable
+            - Arn
+      Events:
+        CreateServiceEvent:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MyApi
+            Path: /services
+            Method: post
+            RequestModel:
+              Model: ServiceModel
+              Required: true
+            Auth:
+              ApiKeyRequired: true
+    Metadata:
+      SamResourceId: CreateServiceFunction
+  GetServicesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetServicesFunction
       Handler: app.lambda_handler
       Runtime: python3.12
       AutoPublishAlias: live
@@ -80,13 +119,14 @@ Resources:
         GetServicesEvent:
           Type: Api
           Properties:
-            Path: /services
-            Method: get
             RestApiId:
               Ref: MyApi
-    GetServicesFunction: null
+            Path: /services
+            Method: get
+            Auth:
+              ApiKeyRequired: true
     Metadata:
-      SamResourceId: CreateServiceFunction
+      SamResourceId: GetServicesFunction
   ManageServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -114,26 +154,55 @@ Resources:
         GetServiceEvent:
           Type: Api
           Properties:
-            Path: /services/{id}
-            Method: get
             RestApiId:
               Ref: MyApi
+            Path: /services/{id}
+            Method: get
+            Auth:
+              ApiKeyRequired: true
         UpdateServiceEvent:
           Type: Api
           Properties:
-            Path: /services/{id}
-            Method: put
             RestApiId:
               Ref: MyApi
+            Path: /services/{id}
+            Method: put
             RequestModel:
               Model: ServiceModel
               Required: true
+            Auth:
+              ApiKeyRequired: true
         DeleteServiceEvent:
           Type: Api
           Properties:
-            Path: /services/{id}
-            Method: delete
             RestApiId:
               Ref: MyApi
+            Path: /services/{id}
+            Method: delete
+            Auth:
+              ApiKeyRequired: true
     Metadata:
       SamResourceId: ManageServiceFunction
+  SwaggerDocsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  SwaggerDocsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: SwaggerDocsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal: '*'
+          Action: s3:GetObject
+          Resource:
+            Fn::Sub: ${SwaggerDocsBucket.Arn}/*

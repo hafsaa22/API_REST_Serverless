@@ -1,17 +1,7 @@
 import json
 import os
+import uuid
 import boto3
-from decimal import Decimal
-from boto3.dynamodb.conditions import Attr
-import base64
-
-
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        return super(DecimalEncoder, self).default(obj)
-
 
 dynamodb = boto3.resource('dynamodb')
 table_name = os.environ.get('TABLE_NAME')
@@ -19,47 +9,63 @@ table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     try:
-        scan_kwargs = {
-            'Limit': 50,
-            'FilterExpression': Attr('PK').begins_with('SERVICE#')
-        }
-
-        query_params = event.get('queryStringParameters')
-        if query_params and 'next_token' in query_params:
-            try:
-                decoded_token = base64.b64decode(query_params['next_token']).decode('utf-8')
-                scan_kwargs['ExclusiveStartKey'] = json.loads(decoded_token)
-            except Exception:
+        if not event.get('body'):
+            return {
+                "statusCode": 400, 
+                "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                "body": json.dumps({"erreur": "Le corps de la requête est vide."})
+            }
+        body = json.loads(event['body'])
+        
+        champs_requis = ['nom', 'description', 'categorie', 'prix']
+        for champ in champs_requis:
+            if champ not in body:
                 return {
                     "statusCode": 400,
-                    "body": json.dumps({"erreur": "Le paramètre next_token est invalide."})
+                    "headers": {
+                        "Access-Control-Allow-Origin": "*"
+                    },
+                    "body": json.dumps({"erreur": f"Le champ '{champ}' est obligatoire."})
                 }
-
-        response = table.scan(**scan_kwargs)
-        services = response.get('Items', [])
+                
+        service_id = str(uuid.uuid4())
         
-        result = {
-            "services": services,
-            "count": len(services)
+        item = {
+            'PK': f"SERVICE#{service_id}",
+            'SK': "DETAILS",
+            'id': service_id,
+            'nom': body['nom'],
+            'description': body['description'],
+            'categorie': body['categorie'],
+            'prix': str(body['prix'])
         }
-
-        if 'LastEvaluatedKey' in response:
-            last_key_json = json.dumps(response['LastEvaluatedKey'])
-            next_token = base64.b64encode(last_key_json.encode('utf-8')).decode('utf-8')
-            result['next_token'] = next_token
-
+        
+        table.put_item(Item=item)
+        
         return {
-            "statusCode": 200,
+            "statusCode": 201,
             "headers": {
-                "Content-Type": "application/json"
+                    "Access-Control-Allow-Origin": "*"
             },
-            "body": json.dumps(result, cls=DecimalEncoder)
+            "body": json.dumps(item)
         }
-
-
+        
+    except json.JSONDecodeError:
+        return {
+            "statusCode": 400,
+            "headers": {
+                    "Access-Control-Allow-Origin": "*"
+            },
+            "body": json.dumps({"erreur": "Le payload fourni n'est pas un JSON valide."})
+        }
     except Exception as e:
         print(f"Erreur interne: {e}")
         return {
             "statusCode": 500,
-            "body": json.dumps({"erreur": "Erreur interne lors de la récupération du catalogue."})
+            "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
+            "body": json.dumps({"erreur": "Erreur interne du serveur."})
         }

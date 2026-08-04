@@ -13,31 +13,37 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
+
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+
       Auth:
-        ApiKeyRequired: true
         UsagePlan:
           CreateUsagePlan: PER_API
+
     # ------ Def JSON Model ------
-    Models:
-      ServiceModel:
-        type: object
-        required:
-          - nom
-          - description
-          - categorie
-          - prix
-        properties:
-          nom:
-            type: string
-          description:
-            type: string
-          categorie:
-            type: string
-          prix:
-            type: string
-    RequestValidator:
-      ValidateBody: true
-      ValidateParameters: false
+      Models:
+        ServiceModel:
+          type: object
+          required:
+            - nom
+            - description
+            - categorie
+            - prix
+          properties:
+            nom:
+              type: string
+            description:
+              type: string
+            categorie:
+              type: string
+            prix:
+              type: string
+          RequestValidator:
+            ValidateBody: true
+            ValidateParameters: false
 
   CatalogTable:
     Type: AWS::DynamoDB::Table
@@ -101,15 +107,17 @@ Resources:
         CreateServiceEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /services
             Method: post
-            RestApiId: !Ref MyApi
             RequestModel: 
               Model: ServiceModel
               Required: true
+            Auth:
+              ApiKeyRequired: true
 
 
-    GetServicesFunction:
+  GetServicesFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: recuperer_services/
@@ -137,10 +145,12 @@ Resources:
         GetServicesEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /services
             Method: get
-            RestApiId: !Ref MyApi
-
+            Auth:
+              ApiKeyRequired: true
+            
   ManageServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -166,24 +176,30 @@ Resources:
         GetServiceEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /services/{id}
             Method: get
-            RestApiId: !Ref MyApi
+            Auth:
+              ApiKeyRequired: true
         UpdateServiceEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /services/{id}
             Method: put
-            RestApiId: !Ref MyApi
             RequestModel: 
               Model: ServiceModel
               Required: true
+            Auth:
+              ApiKeyRequired: true
         DeleteServiceEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /services/{id}
             Method: delete
-            RestApiId: !Ref MyApi
+            Auth:
+              ApiKeyRequired: true
 
   # --- DOC SWAGGER (S3 Bucket) ---
   SwaggerDocsBucket:

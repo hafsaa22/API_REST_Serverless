@@ -29,6 +29,9 @@ def lambda_handler(event, context):
         if 'Item' not in response:
             return {
                 "statusCode": 404,
+                "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
                 "body": json.dumps({"erreur": f"Le service avec l'ID {service_id} n'existe pas."})
             }
             
@@ -39,6 +42,9 @@ def lambda_handler(event, context):
         if http_method == 'GET':
             return {
                 "statusCode": 200,
+                "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
                 "body": json.dumps(item_existant, cls=DecimalEncoder)
             }
             
@@ -47,6 +53,9 @@ def lambda_handler(event, context):
             table.delete_item(Key=key)
             return {
                 "statusCode": 204,
+                "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
                 "body": ""
             }
             
@@ -74,6 +83,9 @@ def lambda_handler(event, context):
             
             return {
                 "statusCode": 200,
+                "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
                 "body": json.dumps(item_existant, cls=DecimalEncoder)
             }
 
@@ -81,5 +93,8 @@ def lambda_handler(event, context):
         print(f"Erreur interne: {e}")
         return {
             "statusCode": 500,
+            "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
             "body": json.dumps({"erreur": "Erreur interne du serveur."})
         }

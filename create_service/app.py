@@ -10,8 +10,13 @@ table = dynamodb.Table(table_name)
 def lambda_handler(event, context):
     try:
         if not event.get('body'):
-            return {"statusCode": 400, "body": json.dumps({"erreur": "Le corps de la requête est vide."})}
-            
+            return {
+                "statusCode": 400, 
+                "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                "body": json.dumps({"erreur": "Le corps de la requête est vide."})
+            }
         body = json.loads(event['body'])
         
         champs_requis = ['nom', 'description', 'categorie', 'prix']
@@ -19,6 +24,9 @@ def lambda_handler(event, context):
             if champ not in body:
                 return {
                     "statusCode": 400,
+                    "headers": {
+                        "Access-Control-Allow-Origin": "*"
+                    },
                     "body": json.dumps({"erreur": f"Le champ '{champ}' est obligatoire."})
                 }
                 
@@ -38,17 +46,26 @@ def lambda_handler(event, context):
         
         return {
             "statusCode": 201,
+            "headers": {
+                    "Access-Control-Allow-Origin": "*"
+            },
             "body": json.dumps(item)
         }
         
     except json.JSONDecodeError:
         return {
             "statusCode": 400,
+            "headers": {
+                    "Access-Control-Allow-Origin": "*"
+            },
             "body": json.dumps({"erreur": "Le payload fourni n'est pas un JSON valide."})
         }
     except Exception as e:
         print(f"Erreur interne: {e}")
         return {
             "statusCode": 500,
+            "headers": {
+                    "Access-Control-Allow-Origin": "*"
+                },
             "body": json.dumps({"erreur": "Erreur interne du serveur."})
         }
