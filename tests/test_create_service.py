@@ -18,7 +18,7 @@ def test_create_service_success(dynamodb_mock):
     # Exécution de la fonction
     response = lambda_handler(event, None)
     
-    # Vérifications des critères d'acceptation (Asserts)
+    # Vérifications des critères d'acceptation 
     assert response["statusCode"] == 201
     assert "Access-Control-Allow-Origin" in response["headers"]
     
