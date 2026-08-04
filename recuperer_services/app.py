@@ -1,3 +1,4 @@
+from botocore.config import Config
 import json
 import os
 import boto3
@@ -13,7 +14,14 @@ class DecimalEncoder(json.JSONEncoder):
         return super(DecimalEncoder, self).default(obj)
 
 
-dynamodb = boto3.resource('dynamodb')
+retry_config = Config(
+    retries = {
+        'max_attempts': 10,    
+        'mode': 'standard'   
+    }
+)
+
+dynamodb = boto3.resource('dynamodb', config=retry_config)
 table_name = os.environ.get('TABLE_NAME')
 table = dynamodb.Table(table_name)
 
